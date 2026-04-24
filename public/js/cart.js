@@ -189,12 +189,14 @@ document.getElementById('place-order-btn')?.addEventListener('click', async () =
         productId: item.id,
         name: item.name,
         price: item.price,
-        quantity: item.quantity
+        quantity: item.quantity,
+        image: item.image
       })),
-      shippingAddress: {},
+      shippingAddress: {}, // In a real app, you'd collect this from a form
       total: total
     };
 
+    // 1. Still save to database for your records
     const response = await fetch('/api/orders', {
       method: 'POST',
       headers: {
@@ -210,15 +212,38 @@ document.getElementById('place-order-btn')?.addEventListener('click', async () =
       throw new Error(data.error || 'Failed to place order');
     }
 
-    // Clear cart
+    // 2. Generate WhatsApp Message
+    const whatsappNumber = "233208090951";
+    let message = `*🌸 NEW ORDER FROM COCO'S HUB 🌸*\n\n`;
+    message += `*Customer:* ${user.name}\n`;
+    message += `*Email:* ${user.email}\n`;
+    message += `--------------------------\n`;
+    
+    cart.forEach(item => {
+      message += `👜 *${item.name}*\n`;
+      message += `   Qty: ${item.quantity} | Price: GH₵${item.price.toFixed(2)}\n`;
+    });
+    
+    message += `--------------------------\n`;
+    message += `*Subtotal:* GH₵${subtotal.toFixed(2)}\n`;
+    message += `*Shipping:* ${shipping === 0 ? 'FREE' : `GH₵${shipping.toFixed(2)}`}\n`;
+    message += `*TOTAL:* GH₵${total.toFixed(2)}\n\n`;
+    message += `_Please confirm my order and send payment details!_`;
+
+    const encodedMessage = encodeURIComponent(message);
+    const whatsappURL = `https://wa.me/${whatsappNumber}?text=${encodedMessage}`;
+
+    // 3. Clear cart
     cart = [];
     saveCart();
 
-    showToast('Order placed successfully!', 'success');
+    showToast('Order saved! Redirecting to WhatsApp...', 'success');
 
+    // 4. Redirect to WhatsApp after a short delay
     setTimeout(() => {
-      window.location.href = '/';
-    }, 1500);
+      window.open(whatsappURL, '_blank');
+      window.location.href = '/'; // Go back to home
+    }, 2000);
 
   } catch (error) {
     showToast(error.message, 'error');
