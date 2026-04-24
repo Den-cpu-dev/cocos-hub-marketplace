@@ -1,0 +1,8 @@
+node_modules/
+.env
+uploads/*
+!uploads/.gitkeep
+data/*.json
+# (We keep data folder but eventually you'll use a real database)
+.DS_Store
+package-lock.json

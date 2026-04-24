@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Dashboard - Coco's Hub Marketplace</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet">
+  <link rel="stylesheet" href="/css/admin.css">
+</head>
+<body class="admin-body">
+  <div class="admin-layout">
+    <!-- Sidebar -->
+    <aside class="admin-sidebar" id="admin-sidebar">
+      <div class="sidebar-header">
+        <img src="/images/logo.jpeg" alt="Coco's Hub Logo" class="logo-img" style="height: 32px; border-radius: 50%;">
+        <span class="sidebar-brand">Coco's Hub</span>
+        <button class="sidebar-close" id="sidebar-close"><span class="material-icons-outlined">close</span></button>
+      </div>
+      <nav class="sidebar-nav">
+        <a href="#" class="sidebar-link active" data-page="dashboard"><span class="material-icons-outlined">dashboard</span><span>Dashboard</span></a>
+        <a href="#" class="sidebar-link" data-page="products"><span class="material-icons-outlined">inventory_2</span><span>Products</span></a>
+        <a href="#" class="sidebar-link" data-page="orders"><span class="material-icons-outlined">receipt_long</span><span>Orders</span></a>
+        <a href="#" class="sidebar-link" data-page="customers"><span class="material-icons-outlined">group</span><span>Customers</span></a>
+        <div class="sidebar-divider"></div>
+        <a href="#" class="sidebar-link" data-page="settings"><span class="material-icons-outlined">settings</span><span>Settings</span></a>
+        <a href="/" class="sidebar-link"><span class="material-icons-outlined">storefront</span><span>View Store</span></a>
+        <a href="#" class="sidebar-link" id="admin-logout"><span class="material-icons-outlined">logout</span><span>Logout</span></a>
+      </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="admin-main">
+      <header class="admin-header">
+        <div class="header-left">
+          <button class="sidebar-toggle" id="sidebar-toggle"><span class="material-icons-outlined">menu</span></button>
+          <h1 class="page-title" id="page-title">Dashboard</h1>
+        </div>
+        <div class="header-right">
+          <div class="admin-search"><span class="material-icons-outlined">search</span><input type="text" placeholder="Search..." id="admin-search-input"></div>
+          <div class="admin-profile"><div class="profile-avatar">CA</div><span class="profile-name">Coco Admin</span></div>
+        </div>
+      </header>
+
+      <!-- Dashboard Page -->
+      <div class="admin-page active" id="page-dashboard">
+        <div class="stats-grid">
+          <div class="stat-card"><div class="stat-icon bg-purple"><span class="material-icons-outlined">inventory_2</span></div><div class="stat-info"><h3 id="stat-products">0</h3><p>Total Products</p></div></div>
+          <div class="stat-card"><div class="stat-icon bg-pink"><span class="material-icons-outlined">shopping_cart</span></div><div class="stat-info"><h3 id="stat-orders">0</h3><p>Total Orders</p></div></div>
+          <div class="stat-card"><div class="stat-icon bg-green"><span class="material-icons-outlined">payments</span></div><div class="stat-info"><h3 id="stat-revenue">GH₵0</h3><p>Revenue</p></div></div>
+          <div class="stat-card"><div class="stat-icon bg-blue"><span class="material-icons-outlined">group</span></div><div class="stat-info"><h3 id="stat-customers">0</h3><p>Customers</p></div></div>
+        </div>
+        <div class="dashboard-grid">
+          <div class="dash-card">
+            <div class="dash-card-header"><h3>Recent Orders</h3><a href="#" class="view-all-link" data-page="orders">View All</a></div>
+            <div class="table-wrapper"><table class="admin-table"><thead><tr><th>Order ID</th><th>Customer</th><th>Total</th><th>Status</th></tr></thead><tbody id="recent-orders-body"></tbody></table></div>
+          </div>
+          <div class="dash-card">
+            <div class="dash-card-header"><h3>Categories</h3></div>
+            <div class="category-breakdown" id="category-breakdown"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Products Page -->
+      <div class="admin-page" id="page-products">
+        <div class="page-actions">
+          <h2>All Products</h2>
+          <button class="btn-primary" id="add-product-btn"><span class="material-icons-outlined">add</span>Add Product</button>
+        </div>
+        <div class="table-wrapper">
+          <table class="admin-table" id="products-table">
+            <thead><tr><th>Image</th><th>Name</th><th>Category</th><th>Price</th><th>Stock</th><th>Featured</th><th>Actions</th></tr></thead>
+            <tbody id="products-table-body"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Orders Page -->
+      <div class="admin-page" id="page-orders">
+        <div class="page-actions"><h2>All Orders</h2></div>
+        <div class="table-wrapper">
+          <table class="admin-table" id="orders-table">
+            <thead><tr><th>Order ID</th><th>Customer</th><th>Items</th><th>Total</th><th>Date</th><th>Status</th><th>Actions</th></tr></thead>
+            <tbody id="orders-table-body"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Customers Page -->
+      <div class="admin-page" id="page-customers">
+        <div class="page-actions"><h2>All Customers</h2></div>
+        <div class="table-wrapper">
+          <table class="admin-table"><thead><tr><th>Name</th><th>Email</th><th>Joined</th><th>Role</th></tr></thead>
+            <tbody id="customers-table-body"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Settings Page -->
+      <div class="admin-page" id="page-settings">
+        <div class="page-actions"><h2>Settings</h2></div>
+        <div class="settings-card">
+          <h3>Admin Credentials</h3>
+          <p>Email: admin@cocoshub.com</p>
+          <p>Default Password: admin123</p>
+          <p class="settings-note">Change the default password in production for security.</p>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Product Modal -->
+  <div class="admin-modal-overlay" id="product-modal-overlay">
+    <div class="admin-modal" id="product-modal">
+      <div class="admin-modal-header">
+        <h3 id="modal-title">Add New Product</h3>
+        <button class="icon-btn" id="modal-close-btn"><span class="material-icons-outlined">close</span></button>
+      </div>
+      <form id="product-form" enctype="multipart/form-data">
+        <input type="hidden" id="edit-product-id">
+        <div class="form-row">
+          <div class="form-group"><label for="prod-name">Product Name</label><input type="text" id="prod-name" required placeholder="Enter product name"></div>
+          <div class="form-group"><label for="prod-category">Category</label><select id="prod-category" required><option value="">Select Category</option><option value="Bags">Bags</option><option value="Skincare">Skincare</option><option value="Hair Care">Hair Care</option><option value="Makeup">Makeup</option><option value="Accessories">Accessories</option><option value="Other">Other</option></select></div>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label for="prod-price">Price (GH₵)</label><input type="number" id="prod-price" required step="0.01" min="0" placeholder="0.00"></div>
+          <div class="form-group"><label for="prod-stock">Stock</label><input type="number" id="prod-stock" required min="0" placeholder="0"></div>
+        </div>
+        <div class="form-group"><label for="prod-description">Description</label><textarea id="prod-description" rows="3" placeholder="Product description..."></textarea></div>
+        <div class="form-group">
+          <label for="prod-image">Product Image</label>
+          <div class="file-upload" id="file-upload-area">
+            <span class="material-icons-outlined">cloud_upload</span>
+            <p>Drag & drop or <span class="browse-link">browse</span></p>
+            <input type="file" id="prod-image" accept="image/*" class="file-input">
+          </div>
+          <div class="image-preview" id="image-preview" style="display:none;"><img id="preview-img" src="" alt="Preview"><button type="button" class="remove-preview" id="remove-preview"><span class="material-icons-outlined">close</span></button></div>
+        </div>
+        <div class="form-group checkbox-group"><label><input type="checkbox" id="prod-featured"><span>Featured Product</span></label></div>
+        <div class="modal-actions">
+          <button type="button" class="btn-outline" id="modal-cancel">Cancel</button>
+          <button type="submit" class="btn-primary" id="modal-save">Save Product</button>
+        </div>
+      </form>
+    </div>
+  </div>
+  <div class="toast-container" id="toast-container"></div>
+  <script src="/js/admin.js"></script>
+</body>
+</html>

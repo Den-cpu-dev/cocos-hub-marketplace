@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Shopping Cart - Coco's Hub Marketplace</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet">
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <header class="header" id="header">
+    <div class="header-inner">
+      <a href="/" class="logo">
+        <img src="/images/logo.jpeg" alt="Coco's Hub Logo" class="logo-img" style="height: 40px; border-radius: 50%;">
+        <span class="logo-text">Coco's Hub</span>
+      </a>
+      <nav class="nav"><a href="/" class="nav-link">Shop</a><a href="/#categories" class="nav-link">Categories</a><a href="/#recommendations" class="nav-link">Trending</a></nav>
+      <div class="header-actions">
+        <a href="/" class="icon-btn"><span class="material-icons-outlined">storefront</span></a>
+        <a href="/login.html" class="icon-btn" id="user-btn"><span class="material-icons-outlined">person_outline</span></a>
+      </div>
+    </div>
+  </header>
+
+  <main class="cart-page">
+    <div class="cart-container">
+      <div class="cart-header-section">
+        <h1>Shopping Bag</h1>
+        <p id="cart-item-count">0 items</p>
+      </div>
+      <div class="cart-layout">
+        <div class="cart-items-list" id="cart-items-list">
+          <div class="cart-empty-page" id="cart-empty-page">
+            <span class="material-icons-outlined">shopping_bag</span>
+            <h2>Your bag is empty</h2>
+            <p>Looks like you haven't added anything yet.</p>
+            <a href="/" class="btn-primary">Continue Shopping</a>
+          </div>
+        </div>
+        <div class="cart-summary" id="cart-summary" style="display:none;">
+          <div class="summary-card">
+            <h3>Order Summary</h3>
+            <div class="summary-row"><span>Subtotal</span><span id="summary-subtotal">GH₵0.00</span></div>
+            <div class="summary-row"><span>Shipping</span><span id="summary-shipping">Free</span></div>
+            <div class="summary-row"><span>Tax</span><span id="summary-tax">GH₵0.00</span></div>
+            <div class="summary-divider"></div>
+            <div class="summary-row total"><span>Total</span><span id="summary-total">GH₵0.00</span></div>
+            <button class="btn-primary btn-full" id="place-order-btn"><span class="material-icons-outlined">lock</span>Place Order</button>
+            <a href="/" class="btn-outline btn-full">Continue Shopping</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-container">
+      <div class="footer-bottom">
+        <p>&copy; 2026 Coco's Hub Marketplace. All Rights Reserved.</p>
+      </div>
+    </div>
+  </footer>
+  <div class="toast-container" id="toast-container"></div>
+  <script src="/js/cart.js"></script>
+</body>
+</html>

@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Coco's Hub Marketplace - Your premium destination for bags, skincare, hair care, makeup, and accessories. Shop the latest trends in beauty and fashion.">
+  <title>Coco's Hub Marketplace - Shop Premium Beauty & Fashion</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet">
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <!-- ═══ HEADER / NAVIGATION ═══ -->
+  <header class="header" id="header">
+    <div class="header-inner">
+      <a href="/" class="logo" id="logo">
+        <img src="/images/logo.jpeg" alt="Coco's Hub Logo" class="logo-img" style="height: 40px; border-radius: 50%;">
+        <span class="logo-text">Coco's Hub</span>
+      </a>
+      <nav class="nav" id="main-nav">
+        <a href="/" class="nav-link active">Shop</a>
+        <a href="#categories" class="nav-link">Categories</a>
+        <a href="#recommendations" class="nav-link">Trending</a>
+        <a href="#newsletter" class="nav-link">Contact</a>
+      </nav>
+      <div class="header-actions">
+        <button class="icon-btn" id="search-toggle" aria-label="Search">
+          <span class="material-icons-outlined">search</span>
+        </button>
+        <button class="icon-btn cart-btn" id="cart-toggle" aria-label="Cart">
+          <span class="material-icons-outlined">shopping_bag</span>
+          <span class="cart-count" id="cart-count">0</span>
+        </button>
+        <a href="/login.html" class="btn-login" id="user-btn">
+          <span class="material-icons-outlined">person_outline</span>
+          <span>Login</span>
+        </a>
+        <button class="mobile-menu-btn" id="mobile-menu-btn" aria-label="Menu">
+          <span class="material-icons-outlined">menu</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- ═══ MOBILE MENU ═══ -->
+  <div class="mobile-menu" id="mobile-menu">
+    <div class="mobile-menu-header">
+      <div style="display: flex; align-items: center; gap: 0.5rem;">
+        <img src="/images/logo.jpeg" alt="Coco's Hub Logo" class="logo-img" style="height: 32px; border-radius: 50%;">
+        <span class="logo-text" style="font-weight: 700; font-size: 1.25rem;">Coco's Hub</span>
+      </div>
+      <button class="icon-btn" id="mobile-menu-close">
+        <span class="material-icons-outlined">close</span>
+      </button>
+    </div>
+    <nav class="mobile-nav">
+      <a href="/" class="mobile-nav-link active">Shop</a>
+      <a href="#categories" class="mobile-nav-link">Categories</a>
+      <a href="#recommendations" class="mobile-nav-link">Trending</a>
+      <a href="/login.html" class="mobile-nav-link">Account / Login</a>
+      <a href="/cart.html" class="mobile-nav-link">Cart</a>
+    </nav>
+  </div>
+  <div class="mobile-overlay" id="mobile-overlay"></div>
+
+  <!-- ═══ HERO SECTION ═══ -->
+  <section class="hero" id="hero">
+    <div class="hero-bg">
+      <img src="/images/hero.jpeg" alt="Coco's Hub Marketplace - Premium Beauty & Fashion" class="hero-img">
+      <div class="hero-overlay"></div>
+    </div>
+    <div class="hero-content">
+      <h1 class="hero-title">Shop</h1>
+      <p class="hero-subtitle">Give All You Need</p>
+    </div>
+  </section>
+
+  <!-- ═══ SEARCH BAR ═══ -->
+  <section class="search-section" id="search-section">
+    <div class="search-container">
+      <h2 class="search-heading">Give All You Need</h2>
+      <div class="search-bar" id="search-bar">
+        <span class="material-icons-outlined search-icon">search</span>
+        <input type="text" id="search-input" placeholder="Search on Coco's Hub" autocomplete="off">
+        <button class="search-btn" id="search-btn">Search</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ MAIN SHOP SECTION ═══ -->
+  <section class="shop-section" id="categories">
+    <div class="shop-container">
+      <!-- Category Sidebar -->
+      <aside class="category-sidebar" id="category-sidebar">
+        <div class="category-header">
+          <h3>Category</h3>
+          <div class="view-toggle">
+            <button class="view-btn active" id="grid-view" aria-label="Grid view">
+              <span class="material-icons-outlined">grid_view</span>
+            </button>
+            <button class="view-btn" id="list-view" aria-label="List view">
+              <span class="material-icons-outlined">view_list</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="category-list">
+          <label class="category-item active" data-category="All">
+            <input type="radio" name="category" value="All" checked>
+            <span class="category-radio"></span>
+            <span>All Products</span>
+          </label>
+          <label class="category-item" data-category="Bags">
+            <input type="radio" name="category" value="Bags">
+            <span class="category-radio"></span>
+            <span>Bags & Purses</span>
+          </label>
+          <label class="category-item" data-category="Skincare">
+            <input type="radio" name="category" value="Skincare">
+            <span class="category-radio"></span>
+            <span>Skincare</span>
+          </label>
+          <label class="category-item" data-category="Hair Care">
+            <input type="radio" name="category" value="Hair Care">
+            <span class="category-radio"></span>
+            <span>Hair Care</span>
+          </label>
+          <label class="category-item" data-category="Makeup">
+            <input type="radio" name="category" value="Makeup">
+            <span class="category-radio"></span>
+            <span>Makeup</span>
+          </label>
+          <label class="category-item" data-category="Accessories">
+            <input type="radio" name="category" value="Accessories">
+            <span class="category-radio"></span>
+            <span>Accessories</span>
+          </label>
+        </div>
+
+        <div class="filter-section">
+          <h4>Filter By</h4>
+          <label class="filter-item">
+            <input type="checkbox" id="filter-featured">
+            <span class="filter-check"></span>
+            <span>Featured</span>
+          </label>
+          <label class="filter-item">
+            <input type="checkbox" id="filter-instock">
+            <span class="filter-check"></span>
+            <span>In Stock</span>
+          </label>
+        </div>
+
+        <div class="sort-section">
+          <h4>Sort By</h4>
+          <select id="sort-select" class="sort-select">
+            <option value="newest">Newest</option>
+            <option value="price-low">Price: Low to High</option>
+            <option value="price-high">Price: High to Low</option>
+            <option value="rating">Top Rated</option>
+          </select>
+        </div>
+      </aside>
+
+      <!-- Product Grid -->
+      <div class="products-area">
+        <div class="products-header">
+          <p class="products-count" id="products-count">Showing 0 products</p>
+          <button class="filter-toggle-btn" id="filter-toggle-btn">
+            <span class="material-icons-outlined">tune</span>
+            Filters
+          </button>
+        </div>
+
+        <!-- Category Cards Row -->
+        <div class="category-cards" id="category-cards">
+          <div class="cat-card" data-cat="Bags">
+            <img src="/images/bags.png" alt="Bags">
+            <span>Bags</span>
+          </div>
+          <div class="cat-card" data-cat="Skincare">
+            <img src="/images/skincare.png" alt="Skincare">
+            <span>Skincare</span>
+          </div>
+          <div class="cat-card" data-cat="Hair Care">
+            <img src="/images/haircare.png" alt="Hair Care">
+            <span>Hair Care</span>
+          </div>
+          <div class="cat-card" data-cat="Makeup">
+            <img src="/images/makeup.png" alt="Makeup">
+            <span>Makeup</span>
+          </div>
+          <div class="cat-card" data-cat="Accessories">
+            <img src="/images/accessories.png" alt="Accessories">
+            <span>Accessories</span>
+          </div>
+        </div>
+
+        <div class="product-grid" id="product-grid">
+          <!-- Products will be rendered by JS -->
+        </div>
+
+        <div class="loading-spinner" id="loading-spinner">
+          <div class="spinner"></div>
+          <p>Loading products...</p>
+        </div>
+
+        <!-- Pagination -->
+        <div class="pagination" id="pagination">
+          <button class="page-btn" id="prev-page">
+            <span class="material-icons-outlined">chevron_left</span>
+            Previous
+          </button>
+          <div class="page-numbers" id="page-numbers"></div>
+          <button class="page-btn" id="next-page">
+            Next
+            <span class="material-icons-outlined">chevron_right</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ RECOMMENDATIONS ═══ -->
+  <section class="recommendations" id="recommendations">
+    <div class="rec-container">
+      <div class="rec-header">
+        <h2 class="section-title">Explore our recommendations</h2>
+        <div class="rec-nav">
+          <button class="rec-nav-btn" id="rec-prev">
+            <span class="material-icons-outlined">arrow_back</span>
+          </button>
+          <button class="rec-nav-btn" id="rec-next">
+            <span class="material-icons-outlined">arrow_forward</span>
+          </button>
+        </div>
+      </div>
+      <div class="rec-grid" id="rec-grid">
+        <!-- Recommended products rendered by JS -->
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ NEWSLETTER ═══ -->
+  <section class="newsletter" id="newsletter">
+    <div class="newsletter-container">
+      <div class="newsletter-content">
+        <h2>Ready to Get Our New Stuff?</h2>
+        <div class="newsletter-form">
+          <input type="email" placeholder="Email Address" id="newsletter-email">
+          <button class="newsletter-btn" id="newsletter-btn">Send</button>
+        </div>
+      </div>
+      <div class="newsletter-info">
+        <h3>Coco's Hub Marketplace</h3>
+        <p>We'll listen to your needs, identify the best approach, and then create a bespoke beauty shopping solution that's right for you.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ FOOTER ═══ -->
+  <footer class="footer" id="footer">
+    <div class="footer-container">
+      <div class="footer-grid">
+        <div class="footer-col">
+          <h4>About</h4>
+          <a href="/story.html">Our Story</a>
+          <a href="#">Blog</a>
+          <a href="#">Meet The Team</a>
+          <a href="/#newsletter">Contact Us</a>
+        </div>
+        <div class="footer-col">
+          <h4>Support</h4>
+          <a href="/#newsletter">Contact Us</a>
+          <a href="/shipping.html">Shipping</a>
+          <a href="/shipping.html">Returns</a>
+          <a href="/faq.html">FAQ</a>
+        </div>
+        <div class="footer-col">
+          <h4>Quick Links</h4>
+          <a href="/">Shop</a>
+          <a href="/cart.html">Cart</a>
+          <a href="/login.html">My Account</a>
+          <a href="/admin.html">Admin</a>
+        </div>
+        <div class="footer-col">
+          <h4>Social Media</h4>
+          <div class="social-links">
+            <a href="https://www.instagram.com/mys__comfort?igsh=MTdrdXhsdzdqZWh0Mw==" class="social-link" aria-label="Instagram" target="_blank" rel="noopener noreferrer">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg>
+            </a>
+            <a href="https://www.tiktok.com/@your_cutevendor?_r=1&_t=ZS-95L9jT8Ol1u" class="social-link" aria-label="TikTok" target="_blank" rel="noopener noreferrer">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64 2.93 2.93 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 5 20.1a6.34 6.34 0 0 0 10.86-4.43v-7a8.16 8.16 0 0 0 4.77 1.52v-3.4a4.85 4.85 0 0 1-1.04-.1z"/></svg>
+            </a>
+            <a href="https://snapchat.com/t/xVFTumbP" class="social-link" aria-label="Snapchat" target="_blank" rel="noopener noreferrer">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12.11.026c-1.391.02-2.827.274-4.223.778-1.571.568-2.678 1.464-3.41 2.766-.54.96-.757 2.052-.777 3.167-.006.319.012.639.043.957.172 1.765.852 3.42 1.951 4.793.183.228.375.447.585.649.191.183.391.357.6.522.046.036.052.1.015.143-.223.257-.464.5-.72.729-.636.568-1.332 1.05-2.083 1.433-.657.335-1.341.6-2.05.787-.715.188-1.442.278-2.176.262-.23-.005-.443.14-.52.355-.078.215-.008.455.172.602.82.668 1.71 1.222 2.662 1.655 1.07.487 2.197.834 3.35 1.034.464.08 1.026.057 1.343.435.321.382.164.962.085 1.44-.047.283-.105.564-.176.841-.057.22.062.45.275.534 1.25.495 2.585.666 3.923.513 1.343-.153 2.646-.576 3.864-1.25.178-.099.395-.054.519.106.386.495.835.94 1.34 1.32.772.583 1.62.996 2.527 1.228.94.241 1.91.298 2.871.168.217-.03.385-.224.387-.445.002-.221-.162-.416-.377-.45-1.397-.22-2.735-.742-3.927-1.53-.162-.107-.184-.337-.046-.474 1.135-1.127 2.47-1.996 3.96-2.58.558-.218 1.126-.395 1.703-.526.216-.049.37-.253.352-.474-.018-.221-.202-.4-.424-.413-1.638-.096-3.26-.347-4.823-.746a16.892 16.892 0 0 1-3.665-1.44c-.216-.118-.266-.407-.107-.589.658-.755 1.233-1.572 1.715-2.436.436-.78.784-1.595 1.036-2.437.075-.249.006-.52-.178-.71-.184-.189-.462-.244-.706-.14-1.306.556-2.696.866-4.116.918-.086.003-.167-.042-.209-.117-.043-.075-.034-.167.022-.234.908-1.077 1.622-2.292 2.115-3.593.414-1.092.64-2.24.667-3.404.015-.66-.07-1.32-.254-1.96-.34-1.183-1.01-2.235-1.95-3.056-1.11-.97-2.5-1.545-3.966-1.642-.236-.015-.472-.016-.708-.002z"/></svg>
+            </a>
+          </div>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p>&copy; 2026 Coco's Hub Marketplace. All Rights Reserved.</p>
+        <div class="footer-links">
+          <a href="/privacy.html">Privacy Policy</a>
+          <a href="#">Terms of Service</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ═══ CART SIDEBAR ═══ -->
+  <div class="cart-sidebar" id="cart-sidebar">
+    <div class="cart-sidebar-header">
+      <h3>Shopping Bag</h3>
+      <button class="icon-btn" id="cart-close">
+        <span class="material-icons-outlined">close</span>
+      </button>
+    </div>
+    <div class="cart-items" id="cart-items">
+      <div class="cart-empty" id="cart-empty">
+        <span class="material-icons-outlined">shopping_bag</span>
+        <p>Your bag is empty</p>
+        <a href="/" class="btn-primary">Start Shopping</a>
+      </div>
+    </div>
+    <div class="cart-footer" id="cart-footer" style="display:none;">
+      <div class="cart-total">
+        <span>Total</span>
+        <span id="cart-total">GH₵0.00</span>
+      </div>
+      <a href="/cart.html" class="btn-primary btn-full">View Cart</a>
+      <button class="btn-outline btn-full" id="checkout-btn">Checkout</button>
+    </div>
+  </div>
+  <div class="cart-overlay" id="cart-overlay"></div>
+
+  <!-- ═══ TOAST ═══ -->
+  <div class="toast-container" id="toast-container"></div>
+
+  <!-- ═══ PRODUCT QUICK VIEW MODAL ═══ -->
+  <div class="modal-overlay" id="product-modal-overlay">
+    <div class="product-modal" id="product-modal">
+      <button class="modal-close" id="modal-close">
+        <span class="material-icons-outlined">close</span>
+      </button>
+      <div class="modal-body">
+        <div class="modal-image">
+          <img src="" alt="" id="modal-product-image">
+        </div>
+        <div class="modal-info">
+          <span class="modal-category" id="modal-category"></span>
+          <h2 class="modal-title" id="modal-title"></h2>
+          <div class="modal-rating" id="modal-rating"></div>
+          <p class="modal-description" id="modal-description"></p>
+          <div class="modal-price" id="modal-price"></div>
+          <div class="modal-stock" id="modal-stock"></div>
+          <div class="modal-quantity">
+            <button class="qty-btn" id="qty-minus">−</button>
+            <input type="number" value="1" min="1" id="modal-qty">
+            <button class="qty-btn" id="qty-plus">+</button>
+          </div>
+          <div class="modal-actions">
+            <button class="btn-primary" id="modal-add-cart">
+              <span class="material-icons-outlined">shopping_bag</span>
+              Add to Bag
+            </button>
+            <button class="btn-outline" id="modal-buy-now">Buy Now</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="/js/app.js"></script>
+</body>
+</html>
