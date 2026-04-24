@@ -8,16 +8,20 @@
   ],
   "routes": [
     {
-      "src": "/(css|js|images|fonts)/(.*)",
-      "dest": "/public/$1/$2"
+      "src": "/css/(.*)",
+      "dest": "public/css/$1"
+    },
+    {
+      "src": "/js/(.*)",
+      "dest": "public/js/$1"
+    },
+    {
+      "src": "/images/(.*)",
+      "dest": "public/images/$1"
     },
     {
       "src": "/api/(.*)",
       "dest": "server.js"
-    },
-    {
-      "src": "/(index.html|cart.html|login.html|admin.html|story.html|privacy.html|shipping.html|faq.html)",
-      "dest": "/public/$1"
     },
     {
       "src": "/(.*)",
