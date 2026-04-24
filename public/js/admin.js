@@ -141,16 +141,16 @@ async function loadDashboardData() {
     const stats = await response.json();
 
     // Update stat cards
-    document.getElementById('stat-products').textContent = stats.totalProducts;
-    document.getElementById('stat-orders').textContent = stats.totalOrders;
-    document.getElementById('stat-revenue').textContent = `GH₵${stats.totalRevenue.toFixed(2)}`;
-    document.getElementById('stat-customers').textContent = stats.totalCustomers;
+    document.getElementById('stat-products').textContent = stats.totalProducts || 0;
+    document.getElementById('stat-orders').textContent = stats.totalOrders || 0;
+    document.getElementById('stat-revenue').textContent = `GH₵${(stats.totalRevenue || 0).toFixed(2)}`;
+    document.getElementById('stat-customers').textContent = stats.totalCustomers || 0;
 
     // Recent orders
-    renderRecentOrders(stats.recentOrders);
+    renderRecentOrders(stats.recentOrders || []);
 
     // Category breakdown
-    renderCategoryBreakdown(stats.categoryBreakdown, stats.totalProducts);
+    renderCategoryBreakdown(stats.categoryBreakdown || {}, stats.totalProducts || 0);
 
   } catch (error) {
     console.error('Dashboard error:', error);
