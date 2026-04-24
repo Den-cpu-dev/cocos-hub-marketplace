@@ -54,7 +54,7 @@ if (!MONGODB_URI || MONGODB_URI.includes('your_mongodb_connection_string_here'))
 app.use(cors());
 app.use(express.json());
 app.use(cookieParser());
-app.use(express.static('public'));
+app.use(express.static(__dirname));
 app.use('/uploads', express.static('uploads'));
 
 // ─── File-based Database Helpers ──────────────────────────
@@ -454,7 +454,7 @@ app.get('/api/admin/stats', authenticateToken, requireAdmin, async (req, res) =>
 
 // ─── Catch-all: serve index.html ─────────────────────────
 app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+  res.sendFile(path.join(__dirname, 'index.html'));
 });
 
 // ─── Start Server ────────────────────────────────────────
