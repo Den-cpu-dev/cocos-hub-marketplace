@@ -4,6 +4,8 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const cors = require('cors');
 const cookieParser = require('cookie-parser');
+const nodemailer = require('nodemailer');
+const crypto = require('crypto');
 const { v4: uuidv4 } = require('uuid');
 const fs = require('fs');
 const path = require('path');
@@ -22,6 +24,17 @@ cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
   api_key: process.env.CLOUDINARY_API_KEY,
   api_secret: process.env.CLOUDINARY_API_SECRET
+});
+
+// ─── Email Config ──────────────────────────────────────────────
+const transporter = nodemailer.createTransport({
+  host: process.env.SMTP_HOST || 'smtp.gmail.com',
+  port: process.env.SMTP_PORT || 587,
+  secure: false,
+  auth: {
+    user: process.env.SMTP_USER,
+    pass: process.env.SMTP_PASS
+  }
 });
 
 const cloudStorage = new CloudinaryStorage({
@@ -183,6 +196,77 @@ app.post('/api/auth/login', async (req, res) => {
       return res.status(401).json({ error: 'Invalid credentials' });
     }
     
+    if (user.role === 'admin') {
+      const token = jwt.sign(
+        { id: user._id, role: user.role },
+        JWT_SECRET,
+        { expiresIn: '7d' }
+      );
+      
+      return res.json({
+        message: 'Login successful',
+        token,
+        user: { id: user._id, name: user.name, email: user.email, role: user.role }
+      });
+    } else {
+      const code = Math.floor(100000 + Math.random() * 900000).toString();
+      user.loginVerificationCode = code;
+      user.loginVerificationExpires = Date.now() + 10 * 60 * 1000; // 10 minutes
+      await user.save();
+      
+      if (process.env.SMTP_USER && process.env.SMTP_PASS) {
+        await transporter.sendMail({
+          from: `"Coco's Hub" <${process.env.SMTP_USER}>`,
+          to: user.email,
+          subject: 'Your Login Verification Code',
+          text: `Your login verification code is: ${code}\nThis code expires in 10 minutes.`,
+          html: `<h3>Your login verification code is: <strong>${code}</strong></h3><p>This code expires in 10 minutes.</p>`
+        });
+      } else {
+        console.warn('SMTP credentials missing, skipping verification email. Code:', code);
+      }
+      
+      const tempToken = jwt.sign({ id: user._id, type: 'temp_login' }, JWT_SECRET, { expiresIn: '10m' });
+      
+      return res.json({
+        message: 'Verification code sent to email',
+        requiresVerification: true,
+        tempToken,
+        email: user.email
+      });
+    }
+  } catch (err) {
+    res.status(500).json({ error: 'Server error during login' });
+  }
+});
+
+// Verify Login
+app.post('/api/auth/verify-login', async (req, res) => {
+  try {
+    const { tempToken, code } = req.body;
+    
+    if (!tempToken || !code) return res.status(400).json({ error: 'Token and code are required' });
+    
+    let decoded;
+    try {
+      decoded = jwt.verify(tempToken, JWT_SECRET);
+    } catch (e) {
+      return res.status(401).json({ error: 'Session expired or invalid. Please login again.' });
+    }
+    
+    if (decoded.type !== 'temp_login') return res.status(401).json({ error: 'Invalid token' });
+    
+    const user = await User.findById(decoded.id);
+    if (!user) return res.status(404).json({ error: 'User not found' });
+    
+    if (!user.loginVerificationCode || user.loginVerificationCode !== code || user.loginVerificationExpires < Date.now()) {
+      return res.status(401).json({ error: 'Invalid or expired verification code' });
+    }
+    
+    user.loginVerificationCode = undefined;
+    user.loginVerificationExpires = undefined;
+    await user.save();
+    
     const token = jwt.sign(
       { id: user._id, role: user.role },
       JWT_SECRET,
@@ -190,14 +274,68 @@ app.post('/api/auth/login', async (req, res) => {
     );
     
     res.json({
-      message: 'Login successful',
+      message: 'Verification successful',
       token,
       user: { id: user._id, name: user.name, email: user.email, role: user.role }
     });
   } catch (err) {
-    res.status(500).json({ error: 'Server error during login' });
+    res.status(500).json({ error: 'Server error during verification' });
   }
 });
+
+// Forgot Password
+app.post('/api/auth/forgot-password', async (req, res) => {
+  try {
+    const { email } = req.body;
+    if (!email) return res.status(400).json({ error: 'Email is required' });
+    
+    const user = await User.findOne({ email });
+    if (!user) return res.status(404).json({ error: 'No account with that email address exists' });
+    
+    const token = crypto.randomBytes(32).toString('hex');
+    user.resetPasswordToken = token;
+    user.resetPasswordExpires = Date.now() + 3600000; // 1 hour
+    await user.save();
+    
+    const resetUrl = `http://${req.headers.host}/reset-password.html?token=${token}`;
+    
+    if (process.env.SMTP_USER && process.env.SMTP_PASS) {
+      await transporter.sendMail({
+        from: `"Coco's Hub" <${process.env.SMTP_USER}>`,
+        to: user.email,
+        subject: 'Password Reset Request',
+        text: `You requested a password reset.\n\nClick the link below to reset your password:\n\n${resetUrl}\n\nIf you did not request this, please ignore this email.`,
+        html: `<p>You requested a password reset.</p><p>Click the link below to reset your password:</p><a href="${resetUrl}">${resetUrl}</a><p>If you did not request this, please ignore this email.</p>`
+      });
+    } else {
+      console.warn('SMTP credentials missing, skipping reset email. URL:', resetUrl);
+    }
+    
+    res.json({ message: 'Password reset link sent to your email' });
+  } catch (err) {
+    res.status(500).json({ error: 'Server error during password reset request' });
+  }
+});
+
+// Reset Password
+app.post('/api/auth/reset-password', async (req, res) => {
+  try {
+    const { token, password } = req.body;
+    if (!token || !password) return res.status(400).json({ error: 'Token and new password are required' });
+    
+    const user = await User.findOne({
+      resetPasswordToken: token,
+      resetPasswordExpires: { $gt: Date.now() }
+    });
+    
+    if (!user) return res.status(400).json({ error: 'Password reset token is invalid or has expired' });
+    
+    user.password = await bcrypt.hash(password, 10);
+    user.resetPasswordToken = undefined;
+    user.resetPasswordExpires = undefined;
+    await user.save();
+    
+    res.json({ message: 'Password has been successfully reset' });
 
 // Get current user
 app.get('/api/auth/me', authenticateToken, async (req, res) => {

@@ -69,6 +69,22 @@
           <button type="submit" class="btn-primary btn-full" id="register-btn"><span>Create Account</span><span class="material-icons-outlined">arrow_forward</span></button>
           <p class="form-footer-text">Already have an account? <button type="button" class="link-btn" id="go-login">Sign In</button></p>
         </form>
+        <!-- Forgot Password Form -->
+        <form class="auth-form hidden" id="forgot-form">
+          <div class="form-header"><h2>Reset Password</h2><p>Enter your email to receive a reset link</p></div>
+          <div class="form-group"><label for="forgot-email">Email Address</label><div class="input-wrapper"><span class="material-icons-outlined input-icon">email</span><input type="email" id="forgot-email" placeholder="Enter your email" required></div></div>
+          <button type="submit" class="btn-primary btn-full" id="forgot-btn"><span>Send Reset Link</span><span class="material-icons-outlined">arrow_forward</span></button>
+          <p class="form-footer-text">Remembered your password? <button type="button" class="link-btn" id="go-login-from-forgot">Sign In</button></p>
+        </form>
+        
+        <!-- Verification Form -->
+        <form class="auth-form hidden" id="verify-form">
+          <div class="form-header"><h2>Verify Login</h2><p>We sent a 6-digit code to your email</p></div>
+          <div class="form-group"><label for="verify-code">Verification Code</label><div class="input-wrapper"><span class="material-icons-outlined input-icon">lock_open</span><input type="text" id="verify-code" placeholder="Enter 6-digit code" required maxlength="6" pattern="\d{6}"></div></div>
+          <button type="submit" class="btn-primary btn-full" id="verify-btn"><span>Verify & Login</span><span class="material-icons-outlined">check_circle</span></button>
+          <p class="form-footer-text"><button type="button" class="link-btn" id="go-login-from-verify">Back to Sign In</button></p>
+        </form>
+
         <!-- Profile View (Shown when logged in) -->
         <div class="auth-form hidden" id="profile-view">
           <div class="form-header">

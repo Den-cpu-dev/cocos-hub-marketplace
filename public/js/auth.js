@@ -71,6 +71,19 @@ function initializeTabs() {
   document.getElementById('go-login')?.addEventListener('click', () => {
     switchTab('login');
   });
+
+  document.querySelector('.forgot-link')?.addEventListener('click', (e) => {
+    e.preventDefault();
+    switchTab('forgot');
+  });
+
+  document.getElementById('go-login-from-forgot')?.addEventListener('click', () => {
+    switchTab('login');
+  });
+
+  document.getElementById('go-login-from-verify')?.addEventListener('click', () => {
+    switchTab('login');
+  });
 }
 
 function switchTab(tab) {
@@ -81,15 +94,17 @@ function switchTab(tab) {
   document.getElementById('register-tab')?.classList.toggle('active', tab === 'register');
 
   // Update forms visibility
-  const loginForm = document.getElementById('login-form');
-  const registerForm = document.getElementById('register-form');
+  const forms = ['login-form', 'register-form', 'forgot-form', 'verify-form'];
+  forms.forEach(id => document.getElementById(id)?.classList.add('hidden'));
 
   if (tab === 'login') {
-    loginForm?.classList.remove('hidden');
-    registerForm?.classList.add('hidden');
-  } else {
-    loginForm?.classList.add('hidden');
-    registerForm?.classList.remove('hidden');
+    document.getElementById('login-form')?.classList.remove('hidden');
+  } else if (tab === 'register') {
+    document.getElementById('register-form')?.classList.remove('hidden');
+  } else if (tab === 'forgot') {
+    document.getElementById('forgot-form')?.classList.remove('hidden');
+  } else if (tab === 'verify') {
+    document.getElementById('verify-form')?.classList.remove('hidden');
   }
 }
 
@@ -129,6 +144,12 @@ function initializeForms() {
 
   // Register form
   document.getElementById('register-form')?.addEventListener('submit', handleRegister);
+
+  // Forgot Password form
+  document.getElementById('forgot-form')?.addEventListener('submit', handleForgotPassword);
+
+  // Verify form
+  document.getElementById('verify-form')?.addEventListener('submit', handleVerifyLogin);
 }
 
 async function handleLogin(e) {
@@ -159,6 +180,15 @@ async function handleLogin(e) {
 
     if (!response.ok) {
       throw new Error(data.error || 'Login failed');
+    }
+
+    if (data.requiresVerification) {
+      window.tempLoginData = { tempToken: data.tempToken, email: data.email, rememberMe };
+      showToast('Verification code sent to your email', 'success');
+      switchTab('verify');
+      submitBtn.innerHTML = originalText;
+      submitBtn.disabled = false;
+      return;
     }
 
     // Store auth data
@@ -242,6 +272,70 @@ async function handleRegister(e) {
     showToast(error.message, 'error');
     submitBtn.innerHTML = originalText;
     submitBtn.disabled = false;
+  }
+}
+
+async function handleForgotPassword(e) {
+  e.preventDefault();
+  const email = document.getElementById('forgot-email')?.value;
+  if (!email) { showToast('Email is required', 'error'); return; }
+
+  const btn = document.getElementById('forgot-btn');
+  const original = btn.innerHTML;
+  btn.innerHTML = '<span class="material-icons-outlined">hourglass_empty</span> Sending...';
+  btn.disabled = true;
+
+  try {
+    const res = await fetch('/api/auth/forgot-password', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email })
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error);
+    showToast(data.message, 'success');
+    setTimeout(() => switchTab('login'), 2000);
+  } catch (err) {
+    showToast(err.message, 'error');
+  } finally {
+    btn.innerHTML = original;
+    btn.disabled = false;
+  }
+}
+
+async function handleVerifyLogin(e) {
+  e.preventDefault();
+  const code = document.getElementById('verify-code')?.value;
+  if (!code || !window.tempLoginData) { showToast('Invalid request', 'error'); return; }
+
+  const btn = document.getElementById('verify-btn');
+  const original = btn.innerHTML;
+  btn.innerHTML = '<span class="material-icons-outlined">hourglass_empty</span> Verifying...';
+  btn.disabled = true;
+
+  try {
+    const res = await fetch('/api/auth/verify-login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ tempToken: window.tempLoginData.tempToken, code })
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error);
+
+    localStorage.setItem('cocos_token', data.token);
+    localStorage.setItem('cocos_user', JSON.stringify(data.user));
+    if (window.tempLoginData.rememberMe) {
+      localStorage.setItem('cocos_remember', 'true');
+    }
+
+    showToast('Login verified successfully!', 'success');
+    setTimeout(() => {
+      window.location.href = data.user.role === 'admin' ? '/admin.html' : '/';
+    }, 1000);
+  } catch (err) {
+    showToast(err.message, 'error');
+    btn.innerHTML = original;
+    btn.disabled = false;
   }
 }
 
