@@ -239,11 +239,10 @@ document.getElementById('place-order-btn')?.addEventListener('click', async () =
 
     showToast('Order saved! Redirecting to WhatsApp...', 'success');
 
-    // 4. Redirect to WhatsApp after a short delay
+    // 4. Redirect to WhatsApp
     setTimeout(() => {
-      window.open(whatsappURL, '_blank');
-      window.location.href = '/'; // Go back to home
-    }, 2000);
+      window.location.href = whatsappURL;
+    }, 1500);
 
   } catch (error) {
     showToast(error.message, 'error');

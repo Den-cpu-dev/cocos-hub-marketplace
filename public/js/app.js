@@ -135,6 +135,15 @@ function initializeUI() {
   document.getElementById('qty-minus')?.addEventListener('click', () => updateModalQty(-1));
   document.getElementById('qty-plus')?.addEventListener('click', () => updateModalQty(1));
   document.getElementById('modal-add-cart')?.addEventListener('click', addModalProductToCart);
+  document.getElementById('modal-buy-now')?.addEventListener('click', () => {
+    addModalProductToCart();
+    window.location.href = '/cart.html';
+  });
+
+  // Cart sidebar checkout
+  document.getElementById('checkout-btn')?.addEventListener('click', () => {
+    window.location.href = '/cart.html';
+  });
 
   // Recommendations carousel
   setupRecommendations();
