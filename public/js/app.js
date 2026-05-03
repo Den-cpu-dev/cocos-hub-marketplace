@@ -156,7 +156,8 @@ async function fetchProducts() {
   try {
     const response = await fetch('/api/products');
     if (!response.ok) throw new Error('Failed to fetch products');
-    state.products = await response.json();
+    const data = await response.json();
+    state.products = data.map(p => ({ ...p, id: p.id || p._id }));
     filterAndSortProducts();
   } catch (error) {
     console.error('Error fetching products:', error);

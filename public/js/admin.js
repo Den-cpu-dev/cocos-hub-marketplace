@@ -168,9 +168,9 @@ function renderRecentOrders(orders) {
 
   tbody.innerHTML = orders.map(order => `
     <tr>
-      <td>${order.id}</td>
-      <td>${order.customerName}</td>
-      <td>GH₵${order.total.toFixed(2)}</td>
+      <td>${order.orderId || order._id}</td>
+      <td>${order.user?.name || order.customerName || 'Unknown'}</td>
+      <td>GH₵${order.total ? order.total.toFixed(2) : '0.00'}</td>
       <td><span class="status-badge ${order.status}">${order.status}</span></td>
     </tr>
   `).join('');
@@ -208,7 +208,8 @@ async function loadProducts() {
   try {
     const response = await fetch('/api/products');
     if (!response.ok) throw new Error('Failed to load products');
-    products = await response.json();
+    const data = await response.json();
+    products = data.map(p => ({ ...p, id: p.id || p._id }));
     renderProductsTable();
   } catch (error) {
     showToast('Failed to load products', 'error');
@@ -460,7 +461,8 @@ async function loadOrders() {
     });
 
     if (!response.ok) throw new Error('Failed to load orders');
-    orders = await response.json();
+    const data = await response.json();
+    orders = data.map(o => ({ ...o, id: o.orderId || o._id }));
     renderOrdersTable();
   } catch (error) {
     showToast('Failed to load orders', 'error');
@@ -480,8 +482,8 @@ function renderOrdersTable() {
     <tr>
       <td>${order.id}</td>
       <td>
-        ${order.customerName}<br>
-        <small style="color:#999;">${order.customerEmail}</small>
+        ${order.user?.name || order.customerName || 'Unknown'}<br>
+        <small style="color:#999;">${order.user?.email || order.customerEmail || ''}</small>
       </td>
       <td>${order.items.length} items</td>
       <td>GH₵${order.total.toFixed(2)}</td>
@@ -530,8 +532,8 @@ function viewOrder(orderId) {
   const order = orders.find(o => o.id === orderId);
   if (!order) return;
 
-  const items = order.items.map(i => `${i.name} x${i.quantity}`).join(', ');
-  alert(`Order: ${order.id}\nCustomer: ${order.customerName}\nItems: ${items}\nTotal: GH₵${order.total.toFixed(2)}\nStatus: ${order.status}`);
+  const items = order.items ? order.items.map(i => `${i.name} x${i.quantity}`).join(', ') : '';
+  alert(`Order: ${order.id}\nCustomer: ${order.user?.name || order.customerName || 'Unknown'}\nItems: ${items}\nTotal: GH₵${order.total ? order.total.toFixed(2) : '0.00'}\nStatus: ${order.status}`);
 }
 
 // ═══════════════════════════════════════════════════════════
