@@ -173,6 +173,15 @@ document.getElementById('place-order-btn')?.addEventListener('click', async () =
     return;
   }
 
+  const phoneInput = document.getElementById('customer-phone');
+  const phone = phoneInput ? phoneInput.value.trim() : '';
+
+  if (!phone) {
+    showToast('Please enter your mobile number', 'warning');
+    phoneInput?.focus();
+    return;
+  }
+
   const btn = document.getElementById('place-order-btn');
   const originalText = btn.innerHTML;
   btn.innerHTML = '<span class="material-icons-outlined">hourglass_empty</span> Processing...';
@@ -192,7 +201,9 @@ document.getElementById('place-order-btn')?.addEventListener('click', async () =
         quantity: item.quantity,
         image: item.image
       })),
-      shippingAddress: {}, // In a real app, you'd collect this from a form
+      shippingAddress: {
+        phone: phone
+      },
       total: total
     };
 
@@ -217,6 +228,7 @@ document.getElementById('place-order-btn')?.addEventListener('click', async () =
     let message = `*🌸 NEW ORDER FROM COCO'S HUB 🌸*\n\n`;
     message += `*Customer:* ${user.name}\n`;
     message += `*Email:* ${user.email}\n`;
+    message += `*Phone:* ${phone}\n`;
     message += `--------------------------\n`;
     
     cart.forEach(item => {
