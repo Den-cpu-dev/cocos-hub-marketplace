@@ -336,6 +336,10 @@ app.post('/api/auth/reset-password', async (req, res) => {
     await user.save();
     
     res.json({ message: 'Password has been successfully reset' });
+  } catch (err) {
+    res.status(500).json({ error: 'Server error during password reset' });
+  }
+});
 
 // Get current user
 app.get('/api/auth/me', authenticateToken, async (req, res) => {
