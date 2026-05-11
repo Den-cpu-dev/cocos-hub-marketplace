@@ -58,6 +58,8 @@
             <a href="#" class="forgot-link">Forgot Password?</a>
           </div>
           <button type="submit" class="btn-primary btn-full" id="login-btn"><span>Sign In</span><span class="material-icons-outlined">arrow_forward</span></button>
+          <div class="form-divider"><span>or</span></div>
+          <div id="google-signin-btn"></div>
           <p class="form-footer-text">Don't have an account? <button type="button" class="link-btn" id="go-register">Create one</button></p>
         </form>
         <form class="auth-form hidden" id="register-form">
@@ -103,6 +105,7 @@
     </div>
   </div>
   <div class="toast-container" id="toast-container"></div>
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
   <script src="/js/auth.js"></script>
 </body>
 </html>

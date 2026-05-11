@@ -13,6 +13,7 @@ document.addEventListener('DOMContentLoaded', () => {
   initializeForms();
   initializePasswordToggles();
   checkExistingSession();
+  initializeGoogleSignIn();
 });
 
 function checkExistingSession() {
@@ -214,6 +215,72 @@ async function handleLogin(e) {
     showToast(error.message, 'error');
     submitBtn.innerHTML = originalText;
     submitBtn.disabled = false;
+  }
+}
+
+// ═══════════════════════════════════════════════════════════
+// GOOGLE SIGN-IN
+// ═══════════════════════════════════════════════════════════
+
+async function initializeGoogleSignIn() {
+  const btnContainer = document.getElementById('google-signin-btn');
+  if (!btnContainer || !window.google || !window.google.accounts || !window.google.accounts.id) return;
+
+  try {
+    const res = await fetch('/api/auth/google-config');
+    if (!res.ok) {
+      btnContainer.style.display = 'none';
+      return;
+    }
+
+    const data = await res.json();
+    if (!data?.clientId) {
+      btnContainer.style.display = 'none';
+      return;
+    }
+
+    window.google.accounts.id.initialize({
+      client_id: data.clientId,
+      callback: handleGoogleCredential,
+      auto_select: false,
+      cancel_on_tap_outside: true
+    });
+
+    window.google.accounts.id.renderButton(btnContainer, {
+      theme: 'outline',
+      size: 'large',
+      width: '100%'
+    });
+  } catch (err) {
+    btnContainer.style.display = 'none';
+  }
+}
+
+async function handleGoogleCredential(response) {
+  if (!response?.credential) {
+    showToast('Google sign-in failed. Please try again.', 'error');
+    return;
+  }
+
+  try {
+    const res = await fetch('/api/auth/google', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ credential: response.credential })
+    });
+
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Google sign-in failed');
+
+    localStorage.setItem('cocos_token', data.token);
+    localStorage.setItem('cocos_user', JSON.stringify(data.user));
+
+    showToast('Welcome back!', 'success');
+    setTimeout(() => {
+      window.location.href = data.user.role === 'admin' ? '/admin.html' : '/';
+    }, 800);
+  } catch (err) {
+    showToast(err.message, 'error');
   }
 }
 

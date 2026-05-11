@@ -6,6 +6,7 @@ const cors = require('cors');
 const cookieParser = require('cookie-parser');
 const nodemailer = require('nodemailer');
 const crypto = require('crypto');
+const { OAuth2Client } = require('google-auth-library');
 const { v4: uuidv4 } = require('uuid');
 const fs = require('fs');
 const path = require('path');
@@ -30,12 +31,40 @@ cloudinary.config({
 const transporter = nodemailer.createTransport({
   host: process.env.SMTP_HOST || 'smtp.gmail.com',
   port: process.env.SMTP_PORT || 587,
-  secure: false,
+  secure: String(process.env.SMTP_PORT) === '465',
   auth: {
     user: process.env.SMTP_USER,
     pass: process.env.SMTP_PASS
   }
 });
+
+async function verifyEmailTransporter() {
+  if (!process.env.SMTP_USER || !process.env.SMTP_PASS) {
+    console.warn('⚠️ SMTP credentials missing. Email sending is disabled.');
+    return;
+  }
+
+  try {
+    await transporter.verify();
+    console.log('✅ SMTP transporter verified');
+  } catch (err) {
+    console.error('❌ SMTP transporter verification failed:', err.message || err);
+  }
+}
+
+async function sendEmail(options) {
+  if (!process.env.SMTP_USER || !process.env.SMTP_PASS) {
+    return { ok: false, error: 'SMTP credentials missing' };
+  }
+
+  try {
+    await transporter.sendMail(options);
+    return { ok: true };
+  } catch (err) {
+    console.error('❌ Email send failed:', err.message || err);
+    return { ok: false, error: 'Email send failed' };
+  }
+}
 
 const cloudStorage = new CloudinaryStorage({
   cloudinary: cloudinary,
@@ -51,6 +80,7 @@ const upload = multer({ storage: cloudStorage });
 const app = express();
 const PORT = process.env.PORT || 3000;
 const JWT_SECRET = process.env.JWT_SECRET || 'cocos-hub-secret-key-2026';
+const googleClient = process.env.GOOGLE_CLIENT_ID ? new OAuth2Client(process.env.GOOGLE_CLIENT_ID) : null;
 
 // ─── Database Connection ──────────────────────────────────────
 const MONGODB_URI = process.env.MONGODB_URI;
@@ -100,13 +130,15 @@ async function initAdmin() {
         name: 'Coco Admin',
         email: adminEmail,
         password: hashedPassword,
-        role: 'admin'
+        role: 'admin',
+        authProvider: 'local'
       });
       await admin.save();
       console.log('✨ Admin account created in MongoDB');
     } else {
       // Update existing admin password to the new one
       adminExists.password = hashedPassword;
+      adminExists.authProvider = 'local';
       await adminExists.save();
       console.log('✨ Admin password updated to MissCoco2026');
     }
@@ -161,7 +193,8 @@ app.post('/api/auth/register', async (req, res) => {
       name,
       email,
       password: hashedPassword,
-      role: 'user'
+      role: 'user',
+      authProvider: 'local'
     });
     
     await user.save();
@@ -190,6 +223,10 @@ app.post('/api/auth/login', async (req, res) => {
     if (!user) {
       return res.status(401).json({ error: 'Invalid credentials' });
     }
+
+    if (!user.password) {
+      return res.status(400).json({ error: 'This account uses Google Sign-In. Please continue with Google.' });
+    }
     
     const validPassword = await bcrypt.compare(password, user.password);
     if (!validPassword) {
@@ -214,16 +251,18 @@ app.post('/api/auth/login', async (req, res) => {
       user.loginVerificationExpires = Date.now() + 10 * 60 * 1000; // 10 minutes
       await user.save();
       
-      if (process.env.SMTP_USER && process.env.SMTP_PASS) {
-        await transporter.sendMail({
-          from: `"Coco's Hub" <${process.env.SMTP_USER}>`,
-          to: user.email,
-          subject: 'Your Login Verification Code',
-          text: `Your login verification code is: ${code}\nThis code expires in 10 minutes.`,
-          html: `<h3>Your login verification code is: <strong>${code}</strong></h3><p>This code expires in 10 minutes.</p>`
+      const emailResult = await sendEmail({
+        from: `"Coco's Hub" <${process.env.SMTP_FROM || process.env.SMTP_USER}>`,
+        to: user.email,
+        subject: 'Your Login Verification Code',
+        text: `Your login verification code is: ${code}\nThis code expires in 10 minutes.`,
+        html: `<h3>Your login verification code is: <strong>${code}</strong></h3><p>This code expires in 10 minutes.</p>`
+      });
+
+      if (!emailResult.ok) {
+        return res.status(500).json({
+          error: 'Unable to send verification email. Please try again later.'
         });
-      } else {
-        console.warn('SMTP credentials missing, skipping verification email. Code:', code);
       }
       
       const tempToken = jwt.sign({ id: user._id, type: 'temp_login' }, JWT_SECRET, { expiresIn: '10m' });
@@ -232,7 +271,8 @@ app.post('/api/auth/login', async (req, res) => {
         message: 'Verification code sent to email',
         requiresVerification: true,
         tempToken,
-        email: user.email
+        email: user.email,
+        ...(process.env.NODE_ENV !== 'production' ? { debugCode: code } : {})
       });
     }
   } catch (err) {
@@ -299,16 +339,18 @@ app.post('/api/auth/forgot-password', async (req, res) => {
     
     const resetUrl = `http://${req.headers.host}/reset-password.html?token=${token}`;
     
-    if (process.env.SMTP_USER && process.env.SMTP_PASS) {
-      await transporter.sendMail({
-        from: `"Coco's Hub" <${process.env.SMTP_USER}>`,
-        to: user.email,
-        subject: 'Password Reset Request',
-        text: `You requested a password reset.\n\nClick the link below to reset your password:\n\n${resetUrl}\n\nIf you did not request this, please ignore this email.`,
-        html: `<p>You requested a password reset.</p><p>Click the link below to reset your password:</p><a href="${resetUrl}">${resetUrl}</a><p>If you did not request this, please ignore this email.</p>`
+    const emailResult = await sendEmail({
+      from: `"Coco's Hub" <${process.env.SMTP_FROM || process.env.SMTP_USER}>`,
+      to: user.email,
+      subject: 'Password Reset Request',
+      text: `You requested a password reset.\n\nClick the link below to reset your password:\n\n${resetUrl}\n\nIf you did not request this, please ignore this email.`,
+      html: `<p>You requested a password reset.</p><p>Click the link below to reset your password:</p><a href="${resetUrl}">${resetUrl}</a><p>If you did not request this, please ignore this email.</p>`
+    });
+
+    if (!emailResult.ok) {
+      return res.status(500).json({
+        error: 'Unable to send password reset email. Please try again later.'
       });
-    } else {
-      console.warn('SMTP credentials missing, skipping reset email. URL:', resetUrl);
     }
     
     res.json({ message: 'Password reset link sent to your email' });
@@ -333,6 +375,7 @@ app.post('/api/auth/reset-password', async (req, res) => {
     user.password = await bcrypt.hash(password, 10);
     user.resetPasswordToken = undefined;
     user.resetPasswordExpires = undefined;
+    user.authProvider = 'local';
     await user.save();
     
     res.json({ message: 'Password has been successfully reset' });
@@ -382,6 +425,10 @@ app.put('/api/auth/change-password', authenticateToken, async (req, res) => {
     const { currentPassword, newPassword } = req.body;
     const user = await User.findById(req.user.id);
     if (!user) return res.status(404).json({ error: 'User not found' });
+
+    if (!user.password) {
+      return res.status(400).json({ error: 'This account uses Google Sign-In. Please set a password via reset link.' });
+    }
     
     const validPassword = await bcrypt.compare(currentPassword, user.password);
     if (!validPassword) {
@@ -393,7 +440,68 @@ app.put('/api/auth/change-password', authenticateToken, async (req, res) => {
     }
     
     user.password = await bcrypt.hash(newPassword, 10);
+    user.authProvider = 'local';
     await user.save();
+    // Google Auth Config
+    app.get('/api/auth/google-config', (req, res) => {
+      if (!process.env.GOOGLE_CLIENT_ID) {
+        return res.status(500).json({ error: 'Google auth is not configured' });
+      }
+      res.json({ clientId: process.env.GOOGLE_CLIENT_ID });
+    });
+
+    // Google Sign-In
+    app.post('/api/auth/google', async (req, res) => {
+      try {
+        const { credential } = req.body;
+        if (!credential) return res.status(400).json({ error: 'Missing Google credential' });
+        if (!googleClient) return res.status(500).json({ error: 'Google auth is not configured' });
+
+        const ticket = await googleClient.verifyIdToken({
+          idToken: credential,
+          audience: process.env.GOOGLE_CLIENT_ID
+        });
+
+        const payload = ticket.getPayload();
+        const email = payload?.email;
+        const name = payload?.name || 'Google User';
+        const googleId = payload?.sub;
+
+        if (!email) return res.status(400).json({ error: 'Google account email is missing' });
+
+        let user = await User.findOne({ email });
+
+        if (!user) {
+          user = new User({
+            name,
+            email,
+            role: 'user',
+            googleId,
+            authProvider: 'google'
+          });
+          await user.save();
+        } else {
+          if (!user.googleId && googleId) user.googleId = googleId;
+          if (!user.authProvider) user.authProvider = 'google';
+          await user.save();
+        }
+
+        const token = jwt.sign(
+          { id: user._id, role: user.role },
+          JWT_SECRET,
+          { expiresIn: '7d' }
+        );
+
+        return res.json({
+          message: 'Login successful',
+          token,
+          user: { id: user._id, name: user.name, email: user.email, role: user.role }
+        });
+      } catch (err) {
+        console.error('Google auth error:', err.message || err);
+        return res.status(500).json({ error: 'Google authentication failed' });
+      }
+    });
     
     res.json({ message: 'Password changed successfully' });
   } catch (err) {
@@ -648,6 +756,7 @@ app.get('*', (req, res) => {
 // ─── Start Server ────────────────────────────────────────
 if (process.env.NODE_ENV !== 'production') {
   initAdmin().then(() => {
+    verifyEmailTransporter();
     app.listen(PORT, () => {
       console.log(`\n🌸 Coco's Hub Marketplace is running on http://localhost:${PORT}`);
       console.log(`📊 Admin Dashboard: http://localhost:${PORT}/admin.html\n`);
@@ -656,6 +765,7 @@ if (process.env.NODE_ENV !== 'production') {
 } else {
   // In production (Vercel), we still want to ensure admin exists
   initAdmin();
+  verifyEmailTransporter();
 }
 
 module.exports = app;
