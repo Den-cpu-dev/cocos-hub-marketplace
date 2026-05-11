@@ -13,7 +13,7 @@ const path = require('path');
 require('dotenv').config();
 const mongoose = require('mongoose');
 const cloudinary = require('cloudinary').v2;
-const { CloudinaryStorage } = require('multer-storage-cloudinary');
+const CloudinaryStorage = require('multer-storage-cloudinary');
 
 // Models
 const User = require('./models/User');
