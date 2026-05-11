@@ -168,6 +168,7 @@ async function fetchProducts() {
     const data = await response.json();
     state.products = data.map(p => ({ ...p, id: p.id || p._id }));
     filterAndSortProducts();
+    setupRecommendations();
   } catch (error) {
     console.error('Error fetching products:', error);
     showToast('Failed to load products', 'error');
@@ -217,7 +218,7 @@ function filterAndSortProducts() {
       break;
     case 'newest':
     default:
-      filtered.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+      filtered.sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
   }
 
   state.filteredProducts = filtered;
@@ -248,7 +249,11 @@ function renderProducts() {
     return;
   }
 
-  grid.innerHTML = productsToShow.map(product => `
+  grid.innerHTML = productsToShow.map(product => {
+    const safeRating = Number.isFinite(product.rating) ? product.rating : 0;
+    const safeReviews = Number.isFinite(product.reviews) ? product.reviews : 0;
+    const safeDescription = product.description || '';
+    return `
     <div class="product-card" data-id="${product.id}">
       <div class="product-image">
         <img src="${product.image}" alt="${product.name}" onerror="this.src='/images/bags.png'">
@@ -265,14 +270,15 @@ function renderProducts() {
         <span class="product-category">${product.category}</span>
         <h3 class="product-name">${product.name}</h3>
         <div class="product-rating">
-          ${renderStars(product.rating)}
-          <span>(${product.reviews})</span>
+          ${renderStars(safeRating)}
+          <span>(${safeReviews})</span>
         </div>
         <div class="product-price">GH₵${product.price.toFixed(2)}</div>
         ${renderStock(product.stock)}
       </div>
     </div>
-  `).join('');
+  `;
+  }).join('');
 }
 
 function renderStars(rating) {
@@ -334,16 +340,19 @@ function renderPagination() {
 
   // Page click handlers
   pageNumbers.querySelectorAll('.page-number').forEach(num => {
-    num.addEventListener('click', () => {
+    num.onclick = () => {
       state.currentPage = parseInt(num.dataset.page);
       renderProducts();
       renderPagination();
       document.getElementById('product-grid')?.scrollIntoView({ behavior: 'smooth' });
-    });
+    };
   });
 
   // Previous/Next buttons
-  document.getElementById('prev-page')?.addEventListener('click', () => {
+  const prevBtn = document.getElementById('prev-page');
+  const nextBtn = document.getElementById('next-page');
+
+  prevBtn && (prevBtn.onclick = () => {
     if (state.currentPage > 1) {
       state.currentPage--;
       renderProducts();
@@ -351,7 +360,7 @@ function renderPagination() {
     }
   });
 
-  document.getElementById('next-page')?.addEventListener('click', () => {
+  nextBtn && (nextBtn.onclick = () => {
     if (state.currentPage < totalPages) {
       state.currentPage++;
       renderProducts();
@@ -359,8 +368,8 @@ function renderPagination() {
     }
   });
 
-  document.getElementById('prev-page').disabled = state.currentPage === 1;
-  document.getElementById('next-page').disabled = state.currentPage === totalPages;
+  if (prevBtn) prevBtn.disabled = state.currentPage === 1;
+  if (nextBtn) nextBtn.disabled = state.currentPage === totalPages;
 }
 
 function showLoading(show) {
@@ -436,17 +445,29 @@ function addToCart(productId, quantity = 1) {
   const product = state.products.find(p => p.id === productId);
   if (!product) return;
 
+  if (product.stock <= 0) {
+    showToast('This item is out of stock', 'warning');
+    return;
+  }
+
   const existingItem = state.cart.find(item => item.id === productId);
 
   if (existingItem) {
-    existingItem.quantity += quantity;
+    const newQty = existingItem.quantity + quantity;
+    if (newQty > product.stock) {
+      existingItem.quantity = product.stock;
+      showToast('Adjusted to available stock', 'warning');
+    } else {
+      existingItem.quantity = newQty;
+    }
   } else {
+    const safeQty = Math.min(quantity, product.stock);
     state.cart.push({
       id: product.id,
       name: product.name,
       price: product.price,
       image: product.image,
-      quantity: quantity,
+      quantity: safeQty,
       stock: product.stock
     });
   }
@@ -548,15 +569,18 @@ function openProductModal(productId) {
 
   currentModalProduct = product;
   const modal = document.getElementById('product-modal-overlay');
+  const safeRating = Number.isFinite(product.rating) ? product.rating : 0;
+  const safeReviews = Number.isFinite(product.reviews) ? product.reviews : 0;
+  const safeDescription = product.description || '';
 
   document.getElementById('modal-product-image').src = product.image;
   document.getElementById('modal-category').textContent = product.category;
   document.getElementById('modal-title').textContent = product.name;
   document.getElementById('modal-rating').innerHTML = `
-    ${renderStars(product.rating)}
-    <span>(${product.reviews} reviews)</span>
+    ${renderStars(safeRating)}
+    <span>(${safeReviews} reviews)</span>
   `;
-  document.getElementById('modal-description').textContent = product.description;
+  document.getElementById('modal-description').textContent = safeDescription;
   document.getElementById('modal-price').textContent = `GH₵${product.price.toFixed(2)}`;
   document.getElementById('modal-stock').textContent = product.stock > 0
     ? `${product.stock} in stock`

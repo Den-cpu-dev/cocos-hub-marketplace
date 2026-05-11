@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Profile - Coco's Hub Marketplace</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet">
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/profile.css">
+</head>
+<body>
+  <!-- Header -->
+  <header class="header" id="header">
+    <div class="header-inner">
+      <a href="/" class="logo">
+        <img src="/images/logo.jpeg" alt="Coco's Hub Logo" class="logo-img" style="height: 40px; border-radius: 50%;">
+        <span class="logo-text">Coco's Hub</span>
+      </a>
+      <nav class="nav">
+        <a href="/" class="nav-link">Shop</a>
+        <a href="/#categories" class="nav-link">Categories</a>
+      </nav>
+      <div class="header-actions">
+        <a href="/cart.html" class="icon-btn" id="cart-btn">
+          <span class="material-icons-outlined">shopping_bag</span>
+          <span class="cart-badge" id="cart-badge">0</span>
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <main class="profile-page">
+    <div class="profile-container">
+      
+      <!-- Sidebar -->
+      <aside class="profile-sidebar">
+        <div class="profile-user-info">
+          <div class="profile-avatar" id="avatar-initial">C</div>
+          <h3 class="profile-name" id="sidebar-name">Loading...</h3>
+          <p class="profile-email" id="sidebar-email">...</p>
+        </div>
+        <nav class="profile-nav">
+          <button class="profile-nav-btn active" data-target="orders">
+            <span class="material-icons-outlined">receipt_long</span> Order History
+          </button>
+          <button class="profile-nav-btn" data-target="settings">
+            <span class="material-icons-outlined">manage_accounts</span> Account Settings
+          </button>
+          <button class="profile-nav-btn" data-target="password">
+            <span class="material-icons-outlined">lock_reset</span> Change Password
+          </button>
+          <button class="profile-nav-btn logout" id="logout-btn">
+            <span class="material-icons-outlined">logout</span> Sign Out
+          </button>
+        </nav>
+      </aside>
+
+      <!-- Content Area -->
+      <div class="profile-content">
+        
+        <!-- Orders Section -->
+        <section class="profile-section active" id="orders-section">
+          <div class="section-header">
+            <h2>Order History</h2>
+          </div>
+          <div class="orders-table-wrapper" id="orders-container">
+            <div class="empty-state">
+              <span class="material-icons-outlined">hourglass_empty</span>
+              <p>Loading your orders...</p>
+            </div>
+          </div>
+        </section>
+
+        <!-- Settings Section -->
+        <section class="profile-section" id="settings-section">
+          <div class="section-header">
+            <h2>Account Settings</h2>
+          </div>
+          <form class="settings-form" id="profile-form">
+            <div class="settings-group">
+              <label for="profile-name-input">Full Name</label>
+              <input type="text" id="profile-name-input" required>
+            </div>
+            <div class="settings-group">
+              <label for="profile-email-input">Email Address (Read Only)</label>
+              <input type="email" id="profile-email-input" readonly style="background: #f8f9fa; color: #6c757d;">
+            </div>
+            <div class="settings-group">
+              <label for="profile-phone-input">Phone Number</label>
+              <input type="tel" id="profile-phone-input" placeholder="e.g. 024XXXXXXX">
+            </div>
+            <button type="submit" class="btn-primary" id="update-profile-btn">Save Changes</button>
+          </form>
+        </section>
+
+        <!-- Change Password Section -->
+        <section class="profile-section" id="password-section">
+          <div class="section-header">
+            <h2>Change Password</h2>
+          </div>
+          <form class="settings-form" id="password-form">
+            <div class="settings-group">
+              <label for="current-password">Current Password</label>
+              <input type="password" id="current-password" required>
+            </div>
+            <div class="settings-group">
+              <label for="new-password">New Password</label>
+              <input type="password" id="new-password" required minlength="6">
+            </div>
+            <div class="settings-group">
+              <label for="confirm-new-password">Confirm New Password</label>
+              <input type="password" id="confirm-new-password" required minlength="6">
+            </div>
+            <button type="submit" class="btn-primary" id="change-password-btn">Update Password</button>
+          </form>
+        </section>
+
+      </div>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-container">
+      <div class="footer-bottom">
+        <p>&copy; 2026 Coco's Hub Marketplace. All Rights Reserved.</p>
+      </div>
+    </div>
+  </footer>
+  <div class="toast-container" id="toast-container"></div>
+  <script src="/js/profile.js"></script>
+</body>
+</html>

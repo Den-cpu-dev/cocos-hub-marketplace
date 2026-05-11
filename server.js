@@ -348,10 +348,56 @@ app.get('/api/auth/me', authenticateToken, async (req, res) => {
     if (!user) return res.status(404).json({ error: 'User not found' });
     
     res.json({
-      user: { id: user._id, name: user.name, email: user.email, role: user.role }
+      user: { id: user._id, name: user.name, email: user.email, phone: user.phone, role: user.role }
     });
   } catch (err) {
     res.status(500).json({ error: 'Server error' });
+  }
+});
+
+// Update Profile
+app.put('/api/auth/profile', authenticateToken, async (req, res) => {
+  try {
+    const { name, phone } = req.body;
+    const user = await User.findById(req.user.id);
+    if (!user) return res.status(404).json({ error: 'User not found' });
+    
+    if (name) user.name = name;
+    if (phone !== undefined) user.phone = phone;
+    
+    await user.save();
+    
+    res.json({
+      message: 'Profile updated successfully',
+      user: { id: user._id, name: user.name, email: user.email, phone: user.phone, role: user.role }
+    });
+  } catch (err) {
+    res.status(500).json({ error: 'Server error updating profile' });
+  }
+});
+
+// Change Password
+app.put('/api/auth/change-password', authenticateToken, async (req, res) => {
+  try {
+    const { currentPassword, newPassword } = req.body;
+    const user = await User.findById(req.user.id);
+    if (!user) return res.status(404).json({ error: 'User not found' });
+    
+    const validPassword = await bcrypt.compare(currentPassword, user.password);
+    if (!validPassword) {
+      return res.status(401).json({ error: 'Incorrect current password' });
+    }
+    
+    if (newPassword.length < 6) {
+      return res.status(400).json({ error: 'New password must be at least 6 characters' });
+    }
+    
+    user.password = await bcrypt.hash(newPassword, 10);
+    await user.save();
+    
+    res.json({ message: 'Password changed successfully' });
+  } catch (err) {
+    res.status(500).json({ error: 'Server error changing password' });
   }
 });
 
