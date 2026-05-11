@@ -233,48 +233,18 @@ app.post('/api/auth/login', async (req, res) => {
       return res.status(401).json({ error: 'Invalid credentials' });
     }
     
-    if (user.role === 'admin') {
-      const token = jwt.sign(
-        { id: user._id, role: user.role },
-        JWT_SECRET,
-        { expiresIn: '7d' }
-      );
-      
-      return res.json({
-        message: 'Login successful',
-        token,
-        user: { id: user._id, name: user.name, email: user.email, role: user.role }
-      });
-    } else {
-      const code = Math.floor(100000 + Math.random() * 900000).toString();
-      user.loginVerificationCode = code;
-      user.loginVerificationExpires = Date.now() + 10 * 60 * 1000; // 10 minutes
-      await user.save();
-      
-      const emailResult = await sendEmail({
-        from: `"Coco's Hub" <${process.env.SMTP_FROM || process.env.SMTP_USER}>`,
-        to: user.email,
-        subject: 'Your Login Verification Code',
-        text: `Your login verification code is: ${code}\nThis code expires in 10 minutes.`,
-        html: `<h3>Your login verification code is: <strong>${code}</strong></h3><p>This code expires in 10 minutes.</p>`
-      });
-
-      if (!emailResult.ok) {
-        return res.status(500).json({
-          error: 'Unable to send verification email. Please try again later.'
-        });
-      }
-      
-      const tempToken = jwt.sign({ id: user._id, type: 'temp_login' }, JWT_SECRET, { expiresIn: '10m' });
-      
-      return res.json({
-        message: 'Verification code sent to email',
-        requiresVerification: true,
-        tempToken,
-        email: user.email,
-        ...(process.env.NODE_ENV !== 'production' ? { debugCode: code } : {})
-      });
-    }
+    // Issue JWT token for all authenticated users (no email verification needed)
+    const token = jwt.sign(
+      { id: user._id, role: user.role || 'user' },
+      JWT_SECRET,
+      { expiresIn: '7d' }
+    );
+    
+    return res.json({
+      message: 'Login successful',
+      token,
+      user: { id: user._id, name: user.name, email: user.email, role: user.role }
+    });
   } catch (err) {
     res.status(500).json({ error: 'Server error during login' });
   }
