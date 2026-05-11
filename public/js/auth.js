@@ -186,15 +186,6 @@ async function handleLogin(e) {
       throw new Error(data.error || 'Login failed');
     }
 
-    if (data.requiresVerification) {
-      window.tempLoginData = { tempToken: data.tempToken, email: data.email, rememberMe };
-      showToast('Verification code sent to your email', 'success');
-      switchTab('verify');
-      submitBtn.innerHTML = originalText;
-      submitBtn.disabled = false;
-      return;
-    }
-
     // Store auth data
     localStorage.setItem('cocos_token', data.token);
     localStorage.setItem('cocos_user', JSON.stringify(data.user));

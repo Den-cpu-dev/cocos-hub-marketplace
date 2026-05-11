@@ -246,6 +246,7 @@ app.post('/api/auth/login', async (req, res) => {
       user: { id: user._id, name: user.name, email: user.email, role: user.role }
     });
   } catch (err) {
+    console.error('❌ Login error:', err.message || err);
     res.status(500).json({ error: 'Server error during login' });
   }
 });
