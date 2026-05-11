@@ -442,70 +442,70 @@ app.put('/api/auth/change-password', authenticateToken, async (req, res) => {
     user.password = await bcrypt.hash(newPassword, 10);
     user.authProvider = 'local';
     await user.save();
-    // Google Auth Config
-    app.get('/api/auth/google-config', (req, res) => {
-      if (!process.env.GOOGLE_CLIENT_ID) {
-        return res.status(500).json({ error: 'Google auth is not configured' });
-      }
-      res.json({ clientId: process.env.GOOGLE_CLIENT_ID });
-    });
-
-    // Google Sign-In
-    app.post('/api/auth/google', async (req, res) => {
-      try {
-        const { credential } = req.body;
-        if (!credential) return res.status(400).json({ error: 'Missing Google credential' });
-        if (!googleClient) return res.status(500).json({ error: 'Google auth is not configured' });
-
-        const ticket = await googleClient.verifyIdToken({
-          idToken: credential,
-          audience: process.env.GOOGLE_CLIENT_ID
-        });
-
-        const payload = ticket.getPayload();
-        const email = payload?.email;
-        const name = payload?.name || 'Google User';
-        const googleId = payload?.sub;
-
-        if (!email) return res.status(400).json({ error: 'Google account email is missing' });
-
-        let user = await User.findOne({ email });
-
-        if (!user) {
-          user = new User({
-            name,
-            email,
-            role: 'user',
-            googleId,
-            authProvider: 'google'
-          });
-          await user.save();
-        } else {
-          if (!user.googleId && googleId) user.googleId = googleId;
-          if (!user.authProvider) user.authProvider = 'google';
-          await user.save();
-        }
-
-        const token = jwt.sign(
-          { id: user._id, role: user.role },
-          JWT_SECRET,
-          { expiresIn: '7d' }
-        );
-
-        return res.json({
-          message: 'Login successful',
-          token,
-          user: { id: user._id, name: user.name, email: user.email, role: user.role }
-        });
-      } catch (err) {
-        console.error('Google auth error:', err.message || err);
-        return res.status(500).json({ error: 'Google authentication failed' });
-      }
-    });
-    
     res.json({ message: 'Password changed successfully' });
   } catch (err) {
     res.status(500).json({ error: 'Server error changing password' });
+  }
+});
+
+// Google Auth Config
+app.get('/api/auth/google-config', (req, res) => {
+  if (!process.env.GOOGLE_CLIENT_ID) {
+    return res.status(500).json({ error: 'Google auth is not configured' });
+  }
+  res.json({ clientId: process.env.GOOGLE_CLIENT_ID });
+});
+
+// Google Sign-In
+app.post('/api/auth/google', async (req, res) => {
+  try {
+    const { credential } = req.body;
+    if (!credential) return res.status(400).json({ error: 'Missing Google credential' });
+    if (!googleClient) return res.status(500).json({ error: 'Google auth is not configured' });
+
+    const ticket = await googleClient.verifyIdToken({
+      idToken: credential,
+      audience: process.env.GOOGLE_CLIENT_ID
+    });
+
+    const payload = ticket.getPayload();
+    const email = payload?.email;
+    const name = payload?.name || 'Google User';
+    const googleId = payload?.sub;
+
+    if (!email) return res.status(400).json({ error: 'Google account email is missing' });
+
+    let user = await User.findOne({ email });
+
+    if (!user) {
+      user = new User({
+        name,
+        email,
+        role: 'user',
+        googleId,
+        authProvider: 'google'
+      });
+      await user.save();
+    } else {
+      if (!user.googleId && googleId) user.googleId = googleId;
+      if (!user.authProvider) user.authProvider = 'google';
+      await user.save();
+    }
+
+    const token = jwt.sign(
+      { id: user._id, role: user.role },
+      JWT_SECRET,
+      { expiresIn: '7d' }
+    );
+
+    return res.json({
+      message: 'Login successful',
+      token,
+      user: { id: user._id, name: user.name, email: user.email, role: user.role }
+    });
+  } catch (err) {
+    console.error('Google auth error:', err.message || err);
+    return res.status(500).json({ error: 'Google authentication failed' });
   }
 });
 

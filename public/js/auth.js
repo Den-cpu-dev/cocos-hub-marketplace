@@ -7,6 +7,8 @@
 // ═══════════════════════════════════════════════════════════
 
 let currentTab = 'login';
+let googleInitAttempts = 0;
+const MAX_GOOGLE_INIT_ATTEMPTS = 10;
 
 document.addEventListener('DOMContentLoaded', () => {
   initializeTabs();
@@ -14,6 +16,7 @@ document.addEventListener('DOMContentLoaded', () => {
   initializePasswordToggles();
   checkExistingSession();
   initializeGoogleSignIn();
+  window.addEventListener('load', initializeGoogleSignIn);
 });
 
 function checkExistingSession() {
@@ -224,7 +227,15 @@ async function handleLogin(e) {
 
 async function initializeGoogleSignIn() {
   const btnContainer = document.getElementById('google-signin-btn');
-  if (!btnContainer || !window.google || !window.google.accounts || !window.google.accounts.id) return;
+  if (!btnContainer) return;
+
+  if (!window.google || !window.google.accounts || !window.google.accounts.id) {
+    if (googleInitAttempts < MAX_GOOGLE_INIT_ATTEMPTS) {
+      googleInitAttempts++;
+      setTimeout(initializeGoogleSignIn, 300);
+    }
+    return;
+  }
 
   try {
     const res = await fetch('/api/auth/google-config');
